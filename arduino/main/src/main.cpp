@@ -33,3 +33,6 @@ void get_temp_zone_froide() {
   float temperature = temp * pas;                                               // convertit la variable "temp" en °C (grâce au pas)
   return (temperature);                                                         // renvoie la température
 }
+
+
+// explication
