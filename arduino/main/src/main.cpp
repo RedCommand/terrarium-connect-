@@ -31,6 +31,7 @@ DNSClient dns_client; //initialize dns service
 
 
 void database() {
+  /*
   if (client.connect(server, 80)) {
      Serial.println("connected");
      // Make a HTTP request:
@@ -52,6 +53,7 @@ void database() {
      // if you didn't get a connection to the server:
      Serial.println("connection failed");
    }
+   */
 }
 
 
@@ -71,9 +73,6 @@ void connect_database(){
 
 
 void ethernet_init() {
-  // Open serial communications and wait for port to open:
-  Serial.begin(9600);
-
   // start the Ethernet connection:
   Serial.println("Trying to get an IP address using DHCP");
   if (Ethernet.begin(mac) == 0) {
@@ -93,7 +92,7 @@ void ethernet_init() {
   Serial.println(Ethernet.localIP());
   if (is_connected == true) {
     resolv_dns();
-    Client.begin();
+    //client.begin();
   }
 }
 
@@ -103,6 +102,8 @@ void ethernet_init() {
 
 
 void setup() {
+  // Open serial communications and wait for port to open:
+  Serial.begin(9600);
   ethernet_init();
 
 }
