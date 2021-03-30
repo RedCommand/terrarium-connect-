@@ -18,7 +18,8 @@ IPAddress subnet(255, 255, 0, 0);
   /*END*/
 
   /*database var*/
-char hostname[] = "mysql-redcommand.alwaysdata.net";                            // change to your server's hostname/URL
+char hostname[] = "redcommand.alwaysdata.net";                                  // change to your server's hostname/URL
+char python_server_path[] = "/python/arduino";
 char user[] = "230393";                                                         // MySQL user login username
 char password[] = "Maxime1612";                                                 // MySQL user login password
 int database_port = 3306;
@@ -42,38 +43,96 @@ int humidity = 50;
 int current_humidity = 60;
 /*END*/
 
+const char *request_arg[] = {"current_temp_zone_chaude=", "current_temp_zone_froide=", "current_humidity=", "id_devices="};
+
 
 void database() {
-  if (client.connect(hostname, 80)) {
-     Serial.println("connected");
-     // Make a HTTP request:
-     Serial.print("GET /python/arduino?current_temp_zone_chaude=");
-     client.print("GET /python/arduino?current_temp_zone_chaude=");     //YOUR URL
-     Serial.println(current_temp_zone_chaude);
-     client.print(current_temp_zone_chaude);
-     client.print("&current_temp_zone_froide=");
-     Serial.println("&current_temp_zone_froide=");
-     client.print(current_temp_zone_froide);
-     Serial.println(current_temp_zone_froide);
-     client.print("&current_humidity=");
-     Serial.println("&current_humidity=");
-     client.print(current_humidity);
-     Serial.println(current_humidity);
-     client.print("&id_devices=");
-     Serial.println("&id_devices=");
-     client.print(id_devices);
-     Serial.println(id_devices);
-     client.print(" ");      //SPACE BEFORE HTTP/1.1
-     client.print("HTTP/1.1");
-     client.println();
-     client.println("Host: <Your Local IP>");
-     client.println("Connection: close");
-     client.println();
-   } else {
-     // if you didn't get a connection to the server:
-     Serial.println("connection failed");
+   // Make a HTTP request:
+
+   if(client.connect(hostname, 80)) {
+     Serial.println("connected to server");
    }
 
+   String request = "GET ";                                                     //because https://www.youtube.com/watch?v=meu7W_xJbh8 ...
+   request += python_server_path;
+   request += "?";
+   request += request_arg[0];
+   request += current_temp_zone_chaude;
+   request += "&";
+   request += request_arg[1];
+   request += current_temp_zone_froide;
+   request += "&";
+   request += request_arg[2];
+   request += current_humidity;
+   request += "&";
+   request += request_arg[3];
+   request += id_devices;
+   request += " HTTP/1.1";
+
+   client.println(request);
+   Serial.println(request);
+
+
+   request = "Host: ";
+   request += hostname;
+
+
+   client.println(request);
+   Serial.println(request);
+
+   client.println("Connection: close");
+   Serial.println("Connection: close");
+
+   client.println(); // end HTTP header
+
+   while(client.connected()) {
+      if(client.available()){
+        // read an incoming byte from the server and print it to serial monitor:
+        char c = client.read();
+        Serial.print(c);
+      }
+    }
+
+
+   client.stop();
+
+   /*
+   client.println("GET / HTTP/1.1");
+
+   Serial.print("/python/arduino?current_temp_zone_chaude=");
+   client.print("mysql-redcommand.alwaysdata.net/python/arduino?current_temp_zone_chaude=");     //YOUR URL
+
+   Serial.println(current_temp_zone_chaude);
+   client.print(current_temp_zone_chaude);
+
+   client.print("&current_temp_zone_froide=");
+   Serial.println("&current_temp_zone_froide=");
+
+   client.print(current_temp_zone_froide);
+   Serial.println(current_temp_zone_froide);
+
+   client.print("&current_humidity=");
+   Serial.println("&current_humidity=");
+
+   client.print(current_humidity);
+   Serial.println(current_humidity);
+
+   client.print("&id_devices=");
+   Serial.println("&id_devices=");
+
+   client.print(id_devices);
+   Serial.println(id_devices);
+
+   client.println("Connection: close");
+   client.println();
+   while(client.connected()) {
+      if(client.available()){
+        // read an incoming byte from the server and print it to serial monitor:
+        char c = client.read();
+        Serial.print(c);
+      }
+    }
+    */
 }
 
 
@@ -81,14 +140,11 @@ void database() {
 
 
 void resolv_dns() {
+  Serial.print("test");
   dns_client.begin(Ethernet.dnsServerIP());
   dns_client.getHostByName(hostname, database_ip);
   Serial.print("Ip of distant database : ");
   Serial.println(database_ip);
-}
-
-void connect_database(){
-
 }
 
 
@@ -107,10 +163,17 @@ void ethernet_init() {
     // initialize the Ethernet device not using DHCP:
     Ethernet.begin(mac, ip, myDns, gateway, subnet);
   }
-  // print your local IP address:
-  Serial.print("My IP address: ");
-  Serial.println(Ethernet.localIP());
+  else {
+    Serial.println("succesfuly connect using DHCP");
+    is_connected = true;
+  }
+
+  Serial.print("is connected : ");
+  Serial.println(is_connected);
   if (is_connected == true) {
+    // print your local IP address:
+    Serial.print("My IP address: ");
+    Serial.println(Ethernet.localIP());
     resolv_dns();
     //client.begin();
   }
