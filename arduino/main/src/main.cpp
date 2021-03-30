@@ -2,6 +2,10 @@
 #include <Ethernet.h>
 #include <Dns.h>
 
+int id_devices = 1;
+
+
+
 /*network var*/
 byte mac[] = {
   0x90, 0xA2, 0xDA, 0x0D, 0x14, 0x84
@@ -24,25 +28,41 @@ IPAddress database_ip;                                                          
 bool is_connected;
 /*END*/
 
-EthernetClient client;
 DNSClient dns_client; //initialize dns service
+EthernetClient client;
 
 
+/*temp var for test*/
+
+float temp_zone_chaude = 38;
+float current_temp_zone_chaude = 37;
+float temp_zone_froide = 28;
+float current_temp_zone_froide = 27;
+int humidity = 50;
+int current_humidity = 60;
+/*END*/
 
 
 void database() {
-  /*
-  if (client.connect(server, 80)) {
+  if (client.connect(hostname, 80)) {
      Serial.println("connected");
      // Make a HTTP request:
-     Serial.print("GET /testcode/dht.php?humidity=");
-     client.print("GET /testcode/dht.php?humidity=");     //YOUR URL
-     Serial.println(humidityData);
-     client.print(humidityData);
-     client.print("&temperature=");
-     Serial.println("&temperature=");
-     client.print(temperatureData);
-     Serial.println(temperatureData);
+     Serial.print("GET /python/arduino?current_temp_zone_chaude=");
+     client.print("GET /python/arduino?current_temp_zone_chaude=");     //YOUR URL
+     Serial.println(current_temp_zone_chaude);
+     client.print(current_temp_zone_chaude);
+     client.print("&current_temp_zone_froide=");
+     Serial.println("&current_temp_zone_froide=");
+     client.print(current_temp_zone_froide);
+     Serial.println(current_temp_zone_froide);
+     client.print("&current_humidity=");
+     Serial.println("&current_humidity=");
+     client.print(current_humidity);
+     Serial.println(current_humidity);
+     client.print("&id_devices=");
+     Serial.println("&id_devices=");
+     client.print(id_devices);
+     Serial.println(id_devices);
      client.print(" ");      //SPACE BEFORE HTTP/1.1
      client.print("HTTP/1.1");
      client.println();
@@ -53,7 +73,7 @@ void database() {
      // if you didn't get a connection to the server:
      Serial.println("connection failed");
    }
-   */
+
 }
 
 
@@ -109,5 +129,8 @@ void setup() {
 }
 
 void loop() {
-
+  if (is_connected == true) {
+    database();
+  }
+  delay(3600000);
 }
