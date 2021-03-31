@@ -1,8 +1,12 @@
 #include <SPI.h>
 #include <Ethernet.h>
-#include <Dns.h>
+#include <Servo.h>
 
 int id_devices = 1;
+
+
+
+Servo ServoTrappe;                                                              // création d'un servo
 
 
 
@@ -29,7 +33,6 @@ IPAddress database_ip;                                                          
 bool is_connected;
 /*END*/
 
-DNSClient dns_client; //initialize dns service
 EthernetClient client;
 
 
@@ -110,8 +113,10 @@ void database() {
       }
     }
     Serial.println();
+    Serial.println();
     Serial.print("message = ");
     Serial.println(message);
+    Serial.println();
 
     client.stop();
     Serial.println("connection ended succesfuly");
@@ -156,23 +161,6 @@ void database() {
     Serial.print("humidity = ");
     Serial.println(humidity);
 
-
-
-
-
-
-}
-
-
-
-
-
-void resolv_dns() {
-  Serial.print("test");
-  dns_client.begin(Ethernet.dnsServerIP());
-  dns_client.getHostByName(hostname, database_ip);
-  Serial.print("Ip of distant database : ");
-  Serial.println(database_ip);
 }
 
 
@@ -202,19 +190,26 @@ void ethernet_init() {
     // print your local IP address:
     Serial.print("My IP address: ");
     Serial.println(Ethernet.localIP());
-    resolv_dns();
-    //client.begin();
   }
 }
 
 
+void trappe(int angle = 90) {
+  // création d'une fonction permettant de gérer la trappe (possibilitée de définir l'angle d'ouverture, sinon l'angle par défault sera 90°)
+  // exemple d'utilisation de la fonction : "trappe()" pour ouvrir la trappe à l'angle par default. Ou bien : "trappe(35)" pour ouvrir la trappe à 35°.
+  // ATTENTION : la variable "angle" doit être comprise entre 0 et 180
 
+  ServoTrappe.write(angle);
+}
 
 
 
 void setup() {
   // Open serial communications and wait for port to open:
   Serial.begin(9600);
+  ServoTrappe.attach(3);                                                        // initialisation de la broche 3 pour le servo moteur (pour la trappe)
+
+
   ethernet_init();
 
 }
