@@ -30,142 +30,155 @@ int database_port = 3306;
 IPAddress database_ip;                                                          // IP of MySQL server
   /*END*/
 
-bool is_connected;
+bool is_connected;                                                              // var for offline mod
 /*END*/
 
 EthernetClient client;
 
 
-/*temp var for test*/
-
+/*default var*/
 float temp_zone_chaude = 38;
-float current_temp_zone_chaude = 37;
 float temp_zone_froide = 28;
-float current_temp_zone_froide = 27;
 int angle_trappe = 45;
 int humidity = 50;
-int current_humidity = 60;
 /*END*/
 
+/*initialize sensor variable*/
+  /*temp var for test*/
+float current_temp_zone_chaude = 37;
+float current_temp_zone_froide = 27;
+int current_humidity = 60;
+  /*END*/
+/*END*/
+
+// var to make more easy to update HTTP request
 const char *request_arg[] = {"current_temp_zone_chaude=", "current_temp_zone_froide=", "current_humidity=", "id_devices="};
 
 
 void database() {
 
-   if(client.connect(hostname, 80)) {
-     Serial.println("connected to server");
-   }
+  if(client.connect(hostname, 80)) {                                            // try to connect server
+   Serial.println("connected to server");
+  }
 
-   // Make a HTTP request:
-   String request = "GET ";                                                     //because https://www.youtube.com/watch?v=meu7W_xJbh8 ...
-   request += python_server_path;
-   request += "?";
-   request += request_arg[0];
-   request += current_temp_zone_chaude;
-   request += "&";
-   request += request_arg[1];
-   request += current_temp_zone_froide;
-   request += "&";
-   request += request_arg[2];
-   request += current_humidity;
-   request += "&";
-   request += request_arg[3];
-   request += id_devices;
-   request += " HTTP/1.1";
+  /*make a HTTP request:*/
+  String request = "GET ";                                                      // because https://www.youtube.com/watch?v=meu7W_xJbh8 ...
+  request += python_server_path;
+  request += "?";
+  request += request_arg[0];
+  request += current_temp_zone_chaude;
+  request += "&";
+  request += request_arg[1];
+  request += current_temp_zone_froide;
+  request += "&";
+  request += request_arg[2];
+  request += current_humidity;
+  request += "&";
+  request += request_arg[3];
+  request += id_devices;
+  request += " HTTP/1.1";
 
-   client.println(request);
-   Serial.println(request);
+  client.println(request);                                                      // send request to server
+  Serial.println(request);
 
-   // Make a HTTP request:
-   request = "Host: ";
-   request += hostname;
+    /*send a HTTP request to server:*/
+  request = "Host: ";
+  request += hostname;
 
+  client.println(request);                                                      // send request to server
+  Serial.println(request);
 
-   client.println(request);
-   Serial.println(request);
+  client.println("Connection: close");                                          // end HTTP request
+  Serial.println("Connection: close");
+    /*END*/
 
-   client.println("Connection: close");
-   Serial.println("Connection: close");
+  client.println();                                                             // end HTTP header
+  /*END*/
 
-   client.println(); // end HTTP header
-   String message = "";
-   bool header = true;
+  /*receve data from server*/
+  String message = "";
+  bool header = true;
+  while(client.connected()) {
+    if(client.available()){
+      /*read an incoming byte from the server and print it to serial monitor:*/
+      char c = client.read();
 
-   while(client.connected()) {
-      if(client.available()){
-        // read an incoming byte from the server and print it to serial monitor:
-        char c = client.read();
+      if (c == '(') {                                                           // check for the end of the header
+        header = false;
+        Serial.println();
+        Serial.println("header ended");
+      }
 
-        if (c == '(') {
-          header = false;
-          Serial.println();
-          Serial.println("header ended");
-        }
+      Serial.print(c);
+      /*END*/
 
-        Serial.print(c);
-
-        if (!header) {
-          message += c;
-        }
-
-
-
+      if (!header) {                                                            // when header ended, put data into message variable
+        message += c;
       }
     }
-    Serial.println();
-    Serial.println();
-    Serial.print("message = ");
-    Serial.println(message);
-    Serial.println();
+  }
+  Serial.println();
+  Serial.println();
+  Serial.print("message = ");
+  Serial.println(message);
+  Serial.println();
+  /*END*/
 
-    client.stop();
-    Serial.println("connection ended succesfuly");
+  client.stop();                                                                // end connection to server
+  Serial.println("connection ended succesfuly");
 
-
-    int message_lenght = message.length();
-    message.remove(0, 1);
-    message.remove((message_lenght - 2), 1);
-    Serial.println(message);
-
-
-    String temp_message = message;
-    int temp_message_lenght = temp_message.length();
-    temp_message.remove(int(temp_message.indexOf(", ")), (temp_message_lenght - int(temp_message.indexOf(", "))));
-    message.remove(0, (int(message.indexOf(", ")) + 2));
-    temp_zone_chaude = temp_message.toFloat();
-    Serial.print("temp_zone_chaude = ");
-    Serial.println(temp_zone_chaude);
-
-    temp_message = message;
-    temp_message_lenght = temp_message.length();
-    temp_message.remove(int(temp_message.indexOf(", ")), (temp_message_lenght - int(temp_message.indexOf(", "))));
-    message.remove(0, (int(message.indexOf(", ")) + 2));
-    temp_zone_froide = temp_message.toFloat();
-    Serial.print("temp_zone_froide = ");
-    Serial.println(temp_zone_froide);
-
-    temp_message = message;
-    temp_message_lenght = temp_message.length();
-    temp_message.remove(int(temp_message.indexOf(", ")), (temp_message_lenght - int(temp_message.indexOf(", "))));
-    message.remove(0, (int(message.indexOf(", ")) + 2));
-    angle_trappe = temp_message.toInt();
-    Serial.print("angle_trappe = ");
-    Serial.println(angle_trappe);
+  /*removing () to message*/
+  int message_lenght = message.length();
+  message.remove(0, 1);
+  message.remove((message_lenght - 2), 1);
+  Serial.println(message);
+  /*END*/
 
 
-    temp_message = message;
-    temp_message_lenght = temp_message.length();
-    temp_message.remove(int(temp_message.indexOf(", ")), (temp_message_lenght - int(temp_message.indexOf(", "))));
-    message.remove(0, (int(message.indexOf(", ")) + 2));
-    humidity = temp_message.toInt();
-    Serial.print("humidity = ");
-    Serial.println(humidity);
+  /*analysing message to put data in var*/
+    /*temp_zone_chaude*/
+  String temp_message = message;
+  int temp_message_lenght = temp_message.length();
+  temp_message.remove(int(temp_message.indexOf(", ")), (temp_message_lenght - int(temp_message.indexOf(", "))));
+  message.remove(0, (int(message.indexOf(", ")) + 2));
+  temp_zone_chaude = temp_message.toFloat();
+  Serial.print("temp_zone_chaude = ");
+  Serial.println(temp_zone_chaude);
+    /*END*/
+    /*temp_zone_froide*/
+  temp_message = message;
+  temp_message_lenght = temp_message.length();
+  temp_message.remove(int(temp_message.indexOf(", ")), (temp_message_lenght - int(temp_message.indexOf(", "))));
+  message.remove(0, (int(message.indexOf(", ")) + 2));
+  temp_zone_froide = temp_message.toFloat();
+  Serial.print("temp_zone_froide = ");
+  Serial.println(temp_zone_froide);
+    /*END*/
+    /*angle_trappe*/
+  temp_message = message;
+  temp_message_lenght = temp_message.length();
+  temp_message.remove(int(temp_message.indexOf(", ")), (temp_message_lenght - int(temp_message.indexOf(", "))));
+  message.remove(0, (int(message.indexOf(", ")) + 2));
+  angle_trappe = temp_message.toInt();
+  Serial.print("angle_trappe = ");
+  Serial.println(angle_trappe);
+    /*END*/
+    /*humidity*/
+  temp_message = message;
+  temp_message_lenght = temp_message.length();
+  temp_message.remove(int(temp_message.indexOf(", ")), (temp_message_lenght - int(temp_message.indexOf(", "))));
+  message.remove(0, (int(message.indexOf(", ")) + 2));
+  humidity = temp_message.toInt();
+  Serial.print("humidity = ");
+  Serial.println(humidity);
+    /*END*/
+  /*END*/
 
 }
 
 
 void ethernet_init() {
-  // start the Ethernet connection:
+  /*start the Ethernet connection:*/
   Serial.println("Trying to get an IP address using DHCP");
   if (Ethernet.begin(mac) == 0) {
     Serial.println("Failed to configure Ethernet using DHCP");
@@ -191,17 +204,26 @@ void ethernet_init() {
     Serial.print("My IP address: ");
     Serial.println(Ethernet.localIP());
   }
+  /*END*/
 }
 
 
-void trappe(int angle = 90) {
-  // création d'une fonction permettant de gérer la trappe (possibilitée de définir l'angle d'ouverture, sinon l'angle par défault sera 90°)
+void trappe(int angle = 15) {
+  // création d'une fonction permettant de gérer la trappe (possibilitée de définir l'angle d'ouverture, sinon l'angle par défault sera 15°)
   // exemple d'utilisation de la fonction : "trappe()" pour ouvrir la trappe à l'angle par default. Ou bien : "trappe(35)" pour ouvrir la trappe à 35°.
   // ATTENTION : la variable "angle" doit être comprise entre 0 et 180
-
   ServoTrappe.write(angle);
 }
 
+void get_temp_zone_froide() {
+  // création d'une fonction permettant de lire la température de la zone froide
+  // exemple d'utilisation de la fonction : "float maTemperature = get_temp_zone_froide()"
+  int temp = analogRead(A1);                                                    // lit la valeur analogique sur la broche A1 (le capteur de température de la zone froide)
+  temp = map(temp, 0, 1023, 0, 5000);                                           // convertit la valeur analogique en mV
+  float pas = 0.01;                                                             // exemple pour un pas de 0.01°C/mV
+  float temperature = temp * pas;                                               // convertit la variable "temp" en °C (grâce au pas)
+  return (temperature);                                                         // renvoie la température
+}
 
 
 void setup() {
@@ -215,8 +237,13 @@ void setup() {
 }
 
 void loop() {
-  if (is_connected == true) {
+
+  if (is_connected == true) {                                                   // check if offline mode is disabled
     database();
   }
-  delay(600000);
+
+  delay(600000);                                                                // wait 10 minutes
+  if (is_connected == false) {                                                  // if offline mode is enabled, trying to reconnect
+    ethernet_init();
+  }
 }
