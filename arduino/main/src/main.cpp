@@ -39,6 +39,7 @@ float temp_zone_chaude = 38;
 float current_temp_zone_chaude = 37;
 float temp_zone_froide = 28;
 float current_temp_zone_froide = 27;
+int angle_trappe = 45;
 int humidity = 50;
 int current_humidity = 60;
 /*END*/
@@ -47,12 +48,12 @@ const char *request_arg[] = {"current_temp_zone_chaude=", "current_temp_zone_fro
 
 
 void database() {
-   // Make a HTTP request:
 
    if(client.connect(hostname, 80)) {
      Serial.println("connected to server");
    }
 
+   // Make a HTTP request:
    String request = "GET ";                                                     //because https://www.youtube.com/watch?v=meu7W_xJbh8 ...
    request += python_server_path;
    request += "?";
@@ -72,7 +73,7 @@ void database() {
    client.println(request);
    Serial.println(request);
 
-
+   // Make a HTTP request:
    request = "Host: ";
    request += hostname;
 
@@ -84,55 +85,82 @@ void database() {
    Serial.println("Connection: close");
 
    client.println(); // end HTTP header
+   String message = "";
+   bool header = true;
 
    while(client.connected()) {
       if(client.available()){
         // read an incoming byte from the server and print it to serial monitor:
         char c = client.read();
+
+        if (c == '(') {
+          header = false;
+          Serial.println();
+          Serial.println("header ended");
+        }
+
         Serial.print(c);
+
+        if (!header) {
+          message += c;
+        }
+
+
+
       }
     }
+    Serial.println();
+    Serial.print("message = ");
+    Serial.println(message);
+
+    client.stop();
+    Serial.println("connection ended succesfuly");
 
 
-   client.stop();
+    int message_lenght = message.length();
+    message.remove(0, 1);
+    message.remove((message_lenght - 2), 1);
+    Serial.println(message);
 
-   /*
-   client.println("GET / HTTP/1.1");
 
-   Serial.print("/python/arduino?current_temp_zone_chaude=");
-   client.print("mysql-redcommand.alwaysdata.net/python/arduino?current_temp_zone_chaude=");     //YOUR URL
+    String temp_message = message;
+    int temp_message_lenght = temp_message.length();
+    temp_message.remove(int(temp_message.indexOf(", ")), (temp_message_lenght - int(temp_message.indexOf(", "))));
+    message.remove(0, (int(message.indexOf(", ")) + 2));
+    temp_zone_chaude = temp_message.toFloat();
+    Serial.print("temp_zone_chaude = ");
+    Serial.println(temp_zone_chaude);
 
-   Serial.println(current_temp_zone_chaude);
-   client.print(current_temp_zone_chaude);
+    temp_message = message;
+    temp_message_lenght = temp_message.length();
+    temp_message.remove(int(temp_message.indexOf(", ")), (temp_message_lenght - int(temp_message.indexOf(", "))));
+    message.remove(0, (int(message.indexOf(", ")) + 2));
+    temp_zone_froide = temp_message.toFloat();
+    Serial.print("temp_zone_froide = ");
+    Serial.println(temp_zone_froide);
 
-   client.print("&current_temp_zone_froide=");
-   Serial.println("&current_temp_zone_froide=");
+    temp_message = message;
+    temp_message_lenght = temp_message.length();
+    temp_message.remove(int(temp_message.indexOf(", ")), (temp_message_lenght - int(temp_message.indexOf(", "))));
+    message.remove(0, (int(message.indexOf(", ")) + 2));
+    angle_trappe = temp_message.toInt();
+    Serial.print("angle_trappe = ");
+    Serial.println(angle_trappe);
 
-   client.print(current_temp_zone_froide);
-   Serial.println(current_temp_zone_froide);
 
-   client.print("&current_humidity=");
-   Serial.println("&current_humidity=");
+    temp_message = message;
+    temp_message_lenght = temp_message.length();
+    temp_message.remove(int(temp_message.indexOf(", ")), (temp_message_lenght - int(temp_message.indexOf(", "))));
+    message.remove(0, (int(message.indexOf(", ")) + 2));
+    humidity = temp_message.toInt();
+    Serial.print("humidity = ");
+    Serial.println(humidity);
 
-   client.print(current_humidity);
-   Serial.println(current_humidity);
 
-   client.print("&id_devices=");
-   Serial.println("&id_devices=");
 
-   client.print(id_devices);
-   Serial.println(id_devices);
 
-   client.println("Connection: close");
-   client.println();
-   while(client.connected()) {
-      if(client.available()){
-        // read an incoming byte from the server and print it to serial monitor:
-        char c = client.read();
-        Serial.print(c);
-      }
-    }
-    */
+
+
 }
 
 
@@ -195,5 +223,5 @@ void loop() {
   if (is_connected == true) {
     database();
   }
-  delay(3600000);
+  delay(600000);
 }
