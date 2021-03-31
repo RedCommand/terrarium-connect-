@@ -6,7 +6,7 @@ int id_devices = 1;
 
 
 
-Servo ServoTrappe;                                                              // création d'un servo
+Servo ServoTrappe;                                                              // creating servo
 
 
 
@@ -22,7 +22,7 @@ IPAddress subnet(255, 255, 0, 0);
   /*END*/
 
   /*database var*/
-char hostname[] = "redcommand.alwaysdata.net";                                  // change to your server's hostname/URL
+char hostname[] = "redcommand.alwaysdata.net";                                  // server's hostname/URL
 char python_server_path[] = "/python/arduino";
 char user[] = "230393";                                                         // MySQL user login username
 char password[] = "Maxime1612";                                                 // MySQL user login password
@@ -43,7 +43,7 @@ int angle_trappe = 45;
 int humidity = 50;
 /*END*/
 
-/*initialize sensor variable*/
+/*initialize variable of sensor*/
   /*temp var for test*/
 float current_temp_zone_chaude = 37;
 float current_temp_zone_froide = 27;
@@ -51,7 +51,7 @@ int current_humidity = 60;
   /*END*/
 /*END*/
 
-// var to make more easy to update HTTP request
+// var to make easier to update HTTP request
 const char *request_arg[] = {"current_temp_zone_chaude=", "current_temp_zone_froide=", "current_humidity=", "id_devices="};
 
 
@@ -95,12 +95,12 @@ void database() {
   client.println();                                                             // end HTTP header
   /*END*/
 
-  /*receve data from server*/
+  /*receive data from server*/
   String message = "";
   bool header = true;
   while(client.connected()) {
     if(client.available()){
-      /*read an incoming byte from the server and print it to serial monitor:*/
+      /*read an incoming byte from server and print it to serial monitor:*/
       char c = client.read();
 
       if (c == '(') {                                                           // check for the end of the header
@@ -135,7 +135,7 @@ void database() {
   /*END*/
 
 
-  /*analysing message to put data in var*/
+  /*analyzing message to put data in var*/
     /*temp_zone_chaude*/
   String temp_message = message;
   int temp_message_lenght = temp_message.length();
