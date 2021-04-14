@@ -220,9 +220,11 @@ float get_temp_zone_froide() {                                                  
   // création d'une fonction permettant de lire la température de la zone froide
   // exemple d'utilisation de la fonction : "float maTemperature = get_temp_zone_froide()"
   int temp = analogRead(A1);                                                    // lit la valeur analogique sur la broche A1 (le capteur de température de la zone froide)
+  Serial.print("temp = ");
   temp = map(temp, 0, 1023, 0, 5000);                                           // convertit la valeur analogique en mV
   float quantum = 0.01;                                                         // exemple pour un pas de 0.01°C/mV
   float temperature = temp * quantum;                                           // convertit la variable "temp" en °C (grâce au pas)
+  Serial.println(temperature);
   return (temperature);                                                         // renvoie la température
 }
 
@@ -230,6 +232,9 @@ float get_temp_zone_froide() {                                                  
 void set_temp_zone_froide() {
   // création d'une fonction permettant de réguler la température de la zone froide
   // exemple d'utilisation de la fonction : "set_temp_zone_froide()"
+
+  current_temp_zone_froide = get_temp_zone_froide();
+
   if (current_temp_zone_froide == temp_zone_chaude) {                           // vérifie si la température est bonne
     tapis_chauffant(false);                                                     // éteint le tapis chauffant
     if (angle_trappe == 91) {                                                   // regarde si la trappe est en mode auto
@@ -266,6 +271,8 @@ void setup() {
   pinMode(7, OUTPUT);                                                           // initialisation de la broche 7 pour le tapis chauffant
 
   ethernet_init();
+
+  current_temp_zone_froide = get_temp_zone_froide();
 
 }
 
