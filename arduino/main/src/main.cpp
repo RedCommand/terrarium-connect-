@@ -8,7 +8,7 @@ int id_devices = 1;
 
 Servo ServoTrappe;                                                              // creating servo
 
-
+int loop_time = 0;
 
 /*network var*/
 byte mac[] = {
@@ -39,7 +39,7 @@ EthernetClient client;
 /*default var*/
 float temp_zone_chaude = 38;
 float temp_zone_froide = 28;
-int angle_trappe = 45;
+int angle_trappe = 91;                                                          // set it to 91 beacause 91 is the auto mode, in fact, the "trappe" fonction only support int in range 0, 90
 int humidity = 50;
 /*END*/
 
@@ -207,22 +207,59 @@ void ethernet_init() {
   /*END*/
 }
 
+void tapis_chauffant(boolean status) {
+  // création d'une fonction basique permettant d'activer ou de désactiver le tapis chauffant.
+  // exemple d'utilisation de la fonction : "heating_mat(true)" or "heating_mat(false)"
+  digitalWrite(7, status);
+}
 
 void trappe(int angle = 15) {
   // création d'une fonction permettant de gérer la trappe (possibilitée de définir l'angle d'ouverture, sinon l'angle par défault sera 15°)
   // exemple d'utilisation de la fonction : "trappe()" pour ouvrir la trappe à l'angle par default. Ou bien : "trappe(35)" pour ouvrir la trappe à 35°.
-  // ATTENTION : la variable "angle" doit être comprise entre 0 et 180
+  // ATTENTION : la variable "angle" doit être comprise entre 0 et 90
   ServoTrappe.write(angle);
 }
 
-void get_temp_zone_froide() {
+float get_temp_zone_froide() {                                                     // does not work because it is not a analog sensor
   // création d'une fonction permettant de lire la température de la zone froide
   // exemple d'utilisation de la fonction : "float maTemperature = get_temp_zone_froide()"
   int temp = analogRead(A1);                                                    // lit la valeur analogique sur la broche A1 (le capteur de température de la zone froide)
   temp = map(temp, 0, 1023, 0, 5000);                                           // convertit la valeur analogique en mV
-  float pas = 0.01;                                                             // exemple pour un pas de 0.01°C/mV
-  float temperature = temp * pas;                                               // convertit la variable "temp" en °C (grâce au pas)
+  float quantum = 0.01;                                                         // exemple pour un pas de 0.01°C/mV
+  float temperature = temp * quantum;                                           // convertit la variable "temp" en °C (grâce au pas)
   return (temperature);                                                         // renvoie la température
+}
+
+
+void set_temp_zone_froide() {
+  // création d'une fonction permettant de réguler la température de la zone froide
+  // exemple d'utilisation de la fonction : "set_temp_zone_froide()"
+  if (current_temp_zone_froide == temp_zone_chaude) {                           // vérifie si la température est bonne
+    tapis_chauffant(false);                                                     // éteint le tapis chauffant
+    if (angle_trappe == 91) {                                                   // regarde si la trappe est en mode auto
+      trappe(0);                                                                // si la trappe est en mode auto, ferme la trappe
+    }
+  }
+
+  else if (current_temp_zone_froide > temp_zone_froide) {                       // si la température est chaude
+    tapis_chauffant(false);                                                     // éteint le tapis chauffant
+    if (angle_trappe == 91) {                                                   // regarde si la trappe est en mode auto
+      trappe();                                                                 // si la trappe est en mode auto, ouvre la trappe
+    }
+    if (current_temp_zone_froide > (temp_zone_froide + 5)) {                    // si la température est trop chaude
+      trappe(90);                                                               // force l'ouverture de la trappe en grand
+    }
+  }
+
+  else if (current_temp_zone_froide < temp_zone_froide) {                       // si la température est froide
+    tapis_chauffant(true);                                                      // alume le tapis chauffant
+    if (angle_trappe == 91) {                                                   // regarde si la trappe est en mode auto
+      trappe(0);                                                                // si la trappe est en mode auto, ferme la trappe
+    }
+    if (current_temp_zone_froide < (temp_zone_froide - 5)) {                    // si la température est trop chaude
+      trappe(0);                                                                // force la fermeture de la trappe
+    }
+  }
 }
 
 
@@ -230,7 +267,7 @@ void setup() {
   // Open serial communications and wait for port to open:
   Serial.begin(9600);
   ServoTrappe.attach(3);                                                        // initialisation de la broche 3 pour le servo moteur (pour la trappe)
-
+  pinMode(7, OUTPUT);                                                           // initialisation de la broche 7 pour le tapis chauffant
 
   ethernet_init();
 
@@ -242,8 +279,16 @@ void loop() {
     database();
   }
 
-  delay(600000);                                                                // wait 10 minutes
+  for (int i = 0; i < 60; i++) {
+
+    set_temp_zone_froide();
+
+    delay(10000);                                                               // wait 10 second
+  }
+
   if (is_connected == false) {                                                  // if offline mode is enabled, trying to reconnect
     ethernet_init();
+
+
   }
 }
