@@ -24,10 +24,6 @@ IPAddress subnet(255, 255, 0, 0);
   /*database var*/
 char hostname[] = "redcommand.alwaysdata.net";                                  // server's hostname/URL
 char python_server_path[] = "/python/arduino";
-char user[] = "230393";                                                         // MySQL user login username
-char password[] = "Maxime1612";                                                 // MySQL user login password
-int database_port = 3306;
-IPAddress database_ip;                                                          // IP of MySQL server
   /*END*/
 
 bool is_connected;                                                              // var for offline mod
