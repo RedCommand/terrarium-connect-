@@ -1,22 +1,35 @@
 import mysql.connector
+from flask import *
 
 
-id_devices = 4
+conn = mysql.connector.connect(user='230393', password='Maxime1612',
+                              host='mysql-redcommand.alwaysdata.net',database='redcommand_terrarium')
 
-mydb = mysql.connector.connect(
-    host="mysql-redcommand.alwaysdata.net",
-    user="230393",
-    password="Maxime1612",
-    database="redcommand_terrarium"
-)
+if conn:
+    print ("Connected Successfully")
+else:
+    print ("Connection Not Established")
 
+class create_dict(dict):
 
-mycursor = mydb.cursor()
-mycursor.execute("SELECT `temp_zone_chaude`, `temp_zone_froide`, `angle_trappe`, `humidity` FROM `devices` WHERE id={}".format(id_devices))
+    # __init__ function
+    def __init__(self):
+        self = dict()
 
-var = ""
+    # Function to add key:value
+    def add(self, key, value):
+        self[key] = value
 
-for x in mycursor:
-    var = var + "{}".format(x)
+mydict = create_dict()
+select_employee = """SELECT * FROM users"""
+cursor = conn.cursor()
+cursor.execute(select_employee)
+result = cursor.fetchall()
+print(result)
 
-print(var)
+for row in result:
+    mydict.add(row[0],({"user":row[1],"devices":row[2],"devices":row[3]}))
+
+stud_json = json.dumps(mydict, indent=2)
+
+print(stud_json)
