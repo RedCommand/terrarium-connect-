@@ -22,6 +22,15 @@ def connect_database(id_devices=None, devices_exist=True):
     return mydb, mycursor
 
 
+class create_dict(dict):
+
+    # __init__ function
+    def __init__(self):
+        self = dict()
+
+    # Function to add key:value
+    def add(self, key, value):
+        self[key] = value
 
 
 app = Flask(__name__)
@@ -58,27 +67,21 @@ def arduino():
 
 @app.route('/test')
 def test():
-    current_temp_zone_chaude = request.args.get("current_temp_zone_chaude")
-    current_temp_zone_froide = request.args.get("current_temp_zone_froide")
-    current_humidity = request.args.get("current_humidity")
-    id_devices = request.args.get("id_devices")
 
-    mydb, mycursor = connect_database(id_devices, False)
+    connect_database()
 
-    mycursor.execute("UPDATE devices SET current_temp_zone_chaude='{}', current_temp_zone_froide='{}', current_humidity='{}' WHERE id={};".format(current_temp_zone_chaude, current_temp_zone_froide, current_humidity, id_devices))
-    mydb.commit()
+    mydict = create_dict()
+    mycursor = mydb.cursor()
+    mycursor.execute("SELECT * FROM devices")
+    result = mycursor.fetchall()
 
+    print(result)
 
-    mycursor.execute("SELECT `temp_zone_chaude`, `temp_zone_froide`, `angle_trappe`, `humidity` FROM `devices` WHERE id={}".format(id_devices))
+    for row in result:
+        mydict.add(row[0],({"status":row[1],"temp_zone_chaude":row[2],"current_temp_zone_chaude":row[3], "temp_zone_froide":row[4], "current_temp_zone_froide":row[5], "angle_trappe":row[6], "humidity":row[7], "current_humidity":row[8]}))
 
-    var = mycursor.fetchone()
-
-    for x in mycursor:
-        var = var + "{}".format(x)
-
-    mycursor.close()
-    mydb.close()
-    return jsonify(var)
+    myjson = json.dumps(mydict, indent=2)
+    return jsonify("myjson")
 
 @app.route('/client')
 def client():
