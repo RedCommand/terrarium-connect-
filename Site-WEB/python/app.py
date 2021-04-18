@@ -1,6 +1,7 @@
 from flask import *
 import mysql.connector
 from flask_restx import Resource, Api
+import base64
 
 
 def connect_database(id_devices=None, devices_exist=True):
@@ -45,36 +46,72 @@ api = Api(app)
 
 
 
-@api.route('/client/<string:client_token>')
+@api.route('/client/<client_token>/<fonction>')
 class client(Resource):
-    def get(self, client_token):
+
+
+
+    def get(self, client_token, fonction):
+
+        result = None
+
+        def user_exist():
+            mycursor.execute("SELECT user FROM `users` WHERE user='{}'".format(login))
+            if "{}".format(mycursor.fetchall()) != "[]":
+                return True
+            else:
+                return False
+
+
+        def register():
+            if not user_exist():
+                mycursor.execute("INSERT INTO `users` (`id`, `user`, `password`, `devices_list`) VALUES (NULL, '{}', '{}', NULL);".format(login, password))
+                mydb.commit()
+            else:
+                return "user already exist"
+
+        def list_devices():
+            if user_exist():
+                mycursor.execute("SELECT devices_list FROM `users` WHERE user='{}' AND password='{}'".format(login, password))
+                return mycursor.fetchall()
+            else:
+                return "user does not exist"
+
 
         mydb, mycursor = connect_database()
 
-        mycursor.execute("SELECT * FROM `devices` WHERE 1")
-        result = mycursor.fetchall()
+        try:
+            login, password = base64.b64decode(client_token).decode("UTF-8").split('::')
+        except:
+            result = "invalid token"
+
+        print("login = ", login, "\npassword = ", password)
+
+        if fonction == "register":
+            result = register()
+
+        elif fonction == "list_devices":
+            result = list_devices()
+
+        else:
+            result =  "bad request"
+
+
+
+
+
+
 
         mycursor.close()
         mydb.close()
 
-        print(client_token)
-        # Default to 200 OK
-        return {'task': result}
+        print(result)
+        return result
+
+
 
     def post(self):
         pass
-
-todos = {}
-
-
-@api.route('/hello/<string:todo_id>')
-class TodoSimple(Resource):
-    def get(self, todo_id):
-        return {todo_id: todos[todo_id]}
-
-    def put(self, todo_id):
-        todos[todo_id] = request.form['data']
-        return {todo_id: todos[todo_id]}
 
 
 
@@ -110,7 +147,7 @@ def test():
     mydb, mycursor = connect_database()
 
     mydict = create_dict()
-    mycursor.execute("SELECT * FROM devices")
+    mycursor.execute("SELECT uesr FROM devices")
     result = mycursor.fetchall()
 
     print(result)
