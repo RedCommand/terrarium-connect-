@@ -1,13 +1,13 @@
 from flask import *
 import mysql.connector
-
+from flask_restx import Resource, Api
 
 
 def connect_database(id_devices=None, devices_exist=True):
     mydb = mysql.connector.connect(
-        host="mysql-redcommand.alwaysdata.net",
-        user="230393",
-        password="Maxime1612",
+        host="localhost",
+        user="mini-pc",
+        password="MVidal  1612",
         database="redcommand_terrarium"
     )
 
@@ -33,11 +33,50 @@ class create_dict(dict):
         self[key] = value
 
 
+
+
+
+
+
+
 app = Flask(__name__)
 
-@app.route('/')
-def hello_world():
-    return render_template('hello.html')
+api = Api(app)
+
+
+
+@api.route('/client/<string:client_token>')
+class client(Resource):
+    def get(self, client_token):
+
+        mydb, mycursor = connect_database()
+
+        mycursor.execute("SELECT * FROM `devices` WHERE 1")
+        result = mycursor.fetchall()
+
+        mycursor.close()
+        mydb.close()
+
+        print(client_token)
+        # Default to 200 OK
+        return {'task': result}
+
+    def post(self):
+        pass
+
+todos = {}
+
+
+@api.route('/hello/<string:todo_id>')
+class TodoSimple(Resource):
+    def get(self, todo_id):
+        return {todo_id: todos[todo_id]}
+
+    def put(self, todo_id):
+        todos[todo_id] = request.form['data']
+        return {todo_id: todos[todo_id]}
+
+
 
 
 @app.route('/arduino')
@@ -68,10 +107,9 @@ def arduino():
 @app.route('/test')
 def test():
 
-    connect_database()
+    mydb, mycursor = connect_database()
 
     mydict = create_dict()
-    mycursor = mydb.cursor()
     mycursor.execute("SELECT * FROM devices")
     result = mycursor.fetchall()
 
@@ -80,12 +118,11 @@ def test():
     for row in result:
         mydict.add(row[0],({"status":row[1],"temp_zone_chaude":row[2],"current_temp_zone_chaude":row[3], "temp_zone_froide":row[4], "current_temp_zone_froide":row[5], "angle_trappe":row[6], "humidity":row[7], "current_humidity":row[8]}))
 
-    myjson = json.dumps(mydict, indent=2)
-    return jsonify("myjson")
+    myjson = json.dumps(mydict, indent=2, sort_keys=True)
+    mycursor.close()
+    mydb.close()
+    return myjson
 
-@app.route('/client')
-def client():
-    pass
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=4000, debug=True)
