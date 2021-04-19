@@ -4,7 +4,7 @@ from flask_restx import Resource, Api
 import base64
 
 
-def connect_database(id_devices=None, devices_exist=True):
+def connect_database(id_devices=None, devices_type=None, devices_exist=True):
     mydb = mysql.connector.connect(
         host="localhost",
         user="mini-pc",
@@ -15,7 +15,7 @@ def connect_database(id_devices=None, devices_exist=True):
     mycursor = mydb.cursor()
     if id_devices != None :
         if not devices_exist :
-            mycursor.execute("INSERT INTO devices (id, status, temp_zone_chaude, current_temp_zone_chaude, temp_zone_froide, current_temp_zone_froide, angle_trappe, humidity, current_humidity) SELECT {}, 1, 34, 34, 24, 24, 42, 42, 42 WHERE NOT EXISTS (SELECT * FROM devices WHERE id={});".format(id_devices, id_devices))
+            mycursor.execute("INSERT INTO devices (id, type, temp_zone_chaude, current_temp_zone_chaude, temp_zone_froide, current_temp_zone_froide, angle_trappe, humidity, current_humidity) SELECT {}, '{}', 34, 34, 24, 24, 42, 42, 42 WHERE NOT EXISTS (SELECT * FROM devices WHERE id={});".format(id_devices, devices_type, id_devices))
             mydb.commit()
             print("created new devices")
 
@@ -121,9 +121,13 @@ def arduino():
     current_temp_zone_chaude = request.args.get("current_temp_zone_chaude")
     current_temp_zone_froide = request.args.get("current_temp_zone_froide")
     current_humidity = request.args.get("current_humidity")
-    id_devices = request.args.get("id_devices")
+    token_devices = request.args.get("token_devices")
 
-    mydb, mycursor = connect_database(id_devices, False)
+
+    id_devices, devices_type = base64.b64decode(token_devices).decode("UTF-8").split('::')
+
+    mydb, mycursor = connect_database(id_devices, devices_type, False)
+
 
     mycursor.execute("UPDATE devices SET current_temp_zone_chaude='{}', current_temp_zone_froide='{}', current_humidity='{}' WHERE id={};".format(current_temp_zone_chaude, current_temp_zone_froide, current_humidity, id_devices))
     mydb.commit()
