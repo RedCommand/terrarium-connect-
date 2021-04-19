@@ -2,7 +2,7 @@
 #include <Ethernet.h>
 #include <Servo.h>
 
-int token_devices = 1;
+char token_devices[] = "MTo6dGVycmE=";
 
 
 
@@ -22,8 +22,8 @@ IPAddress subnet(255, 255, 0, 0);
   /*END*/
 
   /*database var*/
-char hostname[] = "redcommand.alwaysdata.net";                                  // server's hostname/URL
-char python_server_path[] = "/python/arduino";
+char hostname[] = "senard.freeboxos.fr";                                  // server's hostname/URL
+char python_server_path[] = "/arduino";
   /*END*/
 
 bool is_connected;                                                              // var for offline mod
@@ -53,7 +53,7 @@ const char *request_arg[] = {"current_temp_zone_chaude=", "current_temp_zone_fro
 
 void database() {
 
-  if(client.connect(hostname, 80)) {                                            // try to connect server
+  if(client.connect(hostname, 4000)) {                                          // try to connect server
    Serial.println("connected to server");
   }
 
