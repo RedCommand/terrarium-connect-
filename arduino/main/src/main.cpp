@@ -2,7 +2,7 @@
 #include <Ethernet.h>
 #include <Servo.h>
 
-int id_devices = 1;
+int token_devices = 1;
 
 
 
@@ -48,7 +48,7 @@ int current_humidity = 60;
 /*END*/
 
 // var to make easier to update HTTP request
-const char *request_arg[] = {"current_temp_zone_chaude=", "current_temp_zone_froide=", "current_humidity=", "id_devices="};
+const char *request_arg[] = {"current_temp_zone_chaude=", "current_temp_zone_froide=", "current_humidity=", "token_devices="};
 
 
 void database() {
@@ -71,7 +71,7 @@ void database() {
   request += current_humidity;
   request += "&";
   request += request_arg[3];
-  request += id_devices;
+  request += token_devices;
   request += " HTTP/1.1";
 
   client.println(request);                                                      // send request to server
