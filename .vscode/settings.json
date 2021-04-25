@@ -1,0 +1,17 @@
+{
+    "sqltools.connections": [
+        {
+            "mysqlOptions": {
+                "authProtocol": "default"
+            },
+            "previewLimit": 50,
+            "server": "senard.freeboxos.fr",
+            "port": 22,
+            "driver": "MySQL",
+            "database": "redcommand_terrarium",
+            "username": "mini-pc",
+            "password": "MVidal  1612",
+            "name": "redcommand_terrarium"
+        }
+    ]
+}
