@@ -224,10 +224,10 @@ void tapis_chauffant(boolean status)
 {
     // création d'une fonction basique permettant d'activer ou de désactiver le tapis chauffant.
     // exemple d'utilisation de la fonction : "heating_mat(true)" or "heating_mat(false)"
-    digitalWrite(7, status);
+    digitalWrite(8, status);
 }
 
-void trappe(int angle = 15)
+void trappe(int angle = 30)
 {
     // création d'une fonction permettant de gérer la trappe (possibilitée de définir l'angle d'ouverture, sinon l'angle par défault sera 15°)
     // exemple d'utilisation de la fonction : "trappe()" pour ouvrir la trappe à l'angle par default. Ou bien : "trappe(35)" pour ouvrir la trappe à 35°.
@@ -300,7 +300,7 @@ void set_temp_zone_froide()
     Serial.print("temp zone froide : ");
     Serial.println(current_temp_zone_froide);
 
-    if (current_temp_zone_froide == temp_zone_chaude)
+    if (current_temp_zone_froide <= temp_zone_froide + 1 && current_temp_zone_froide >= temp_zone_froide - 1)
     { // vérifie si la température est bonne
         Serial.println("good temp");
         tapis_chauffant(false); // éteint le tapis chauffant
@@ -347,7 +347,7 @@ void setup()
     // Open serial communications and wait for port to open:
     Serial.begin(9600);
     ServoTrappe.attach(5); // initialisation de la broche 3 pour le servo moteur (pour la trappe)
-    pinMode(7, OUTPUT);    // initialisation de la broche 7 pour le tapis chauffant
+    pinMode(8, OUTPUT);    // initialisation de la broche 7 pour le tapis chauffant
 
     ethernet_init();
 
