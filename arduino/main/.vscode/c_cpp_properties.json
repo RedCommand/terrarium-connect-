@@ -1,0 +1,74 @@
+//
+// !!! WARNING !!! AUTO-GENERATED FILE!
+// PLEASE DO NOT MODIFY IT AND USE "platformio.ini":
+// https://docs.platformio.org/page/projectconf/section_env_build.html#build-flags
+//
+{
+    "configurations": [
+        {
+            "name": "PlatformIO",
+            "includePath": [
+                "/home/maxime/Documents/github/terrarium-connect-/arduino/main/include",
+                "/home/maxime/Documents/github/terrarium-connect-/arduino/main/src",
+                "/home/maxime/Documents/github/terrarium-connect-/arduino/main/.pio/libdeps/uno/Ethernet/src",
+                "/home/maxime/.platformio/packages/framework-arduino-avr/libraries/SPI/src",
+                "/home/maxime/Documents/github/terrarium-connect-/arduino/main/.pio/libdeps/uno/OneWire",
+                "/home/maxime/Documents/github/terrarium-connect-/arduino/main/.pio/libdeps/uno/Servo/src",
+                "/home/maxime/.platformio/packages/framework-arduino-avr/cores/arduino",
+                "/home/maxime/.platformio/packages/framework-arduino-avr/variants/standard",
+                "/home/maxime/Documents/github/terrarium-connect-/arduino/main/.pio/libdeps/uno/Adafruit Unified Sensor",
+                "/home/maxime/Documents/github/terrarium-connect-/arduino/main/.pio/libdeps/uno/DHT sensor library",
+                "/home/maxime/Documents/github/terrarium-connect-/arduino/main/.pio/libdeps/uno/DS18B20",
+                "/home/maxime/Documents/github/terrarium-connect-/arduino/main/.pio/libdeps/uno/DallasTemperature",
+                "/home/maxime/Documents/github/terrarium-connect-/arduino/main/.pio/libdeps/uno/LiquidCrystal_I2C",
+                "/home/maxime/Documents/github/terrarium-connect-/arduino/main/.pio/libdeps/uno/MySQL_MariaDB_Generic/src",
+                "/home/maxime/.platformio/packages/framework-arduino-avr/libraries/EEPROM/src",
+                "/home/maxime/.platformio/packages/framework-arduino-avr/libraries/HID/src",
+                "/home/maxime/.platformio/packages/framework-arduino-avr/libraries/SoftwareSerial/src",
+                "/home/maxime/.platformio/packages/framework-arduino-avr/libraries/Wire/src",
+                ""
+            ],
+            "browse": {
+                "limitSymbolsToIncludedHeaders": true,
+                "path": [
+                    "/home/maxime/Documents/github/terrarium-connect-/arduino/main/include",
+                    "/home/maxime/Documents/github/terrarium-connect-/arduino/main/src",
+                    "/home/maxime/Documents/github/terrarium-connect-/arduino/main/.pio/libdeps/uno/Ethernet/src",
+                    "/home/maxime/.platformio/packages/framework-arduino-avr/libraries/SPI/src",
+                    "/home/maxime/Documents/github/terrarium-connect-/arduino/main/.pio/libdeps/uno/OneWire",
+                    "/home/maxime/Documents/github/terrarium-connect-/arduino/main/.pio/libdeps/uno/Servo/src",
+                    "/home/maxime/.platformio/packages/framework-arduino-avr/cores/arduino",
+                    "/home/maxime/.platformio/packages/framework-arduino-avr/variants/standard",
+                    "/home/maxime/Documents/github/terrarium-connect-/arduino/main/.pio/libdeps/uno/Adafruit Unified Sensor",
+                    "/home/maxime/Documents/github/terrarium-connect-/arduino/main/.pio/libdeps/uno/DHT sensor library",
+                    "/home/maxime/Documents/github/terrarium-connect-/arduino/main/.pio/libdeps/uno/DS18B20",
+                    "/home/maxime/Documents/github/terrarium-connect-/arduino/main/.pio/libdeps/uno/DallasTemperature",
+                    "/home/maxime/Documents/github/terrarium-connect-/arduino/main/.pio/libdeps/uno/LiquidCrystal_I2C",
+                    "/home/maxime/Documents/github/terrarium-connect-/arduino/main/.pio/libdeps/uno/MySQL_MariaDB_Generic/src",
+                    "/home/maxime/.platformio/packages/framework-arduino-avr/libraries/EEPROM/src",
+                    "/home/maxime/.platformio/packages/framework-arduino-avr/libraries/HID/src",
+                    "/home/maxime/.platformio/packages/framework-arduino-avr/libraries/SoftwareSerial/src",
+                    "/home/maxime/.platformio/packages/framework-arduino-avr/libraries/Wire/src",
+                    ""
+                ]
+            },
+            "defines": [
+                "PLATFORMIO=50101",
+                "ARDUINO_AVR_UNO",
+                "F_CPU=16000000L",
+                "ARDUINO_ARCH_AVR",
+                "ARDUINO=10808",
+                "__AVR_ATmega328P__",
+                ""
+            ],
+            "cStandard": "c11",
+            "cppStandard": "c++11",
+            "compilerPath": "/home/maxime/.platformio/packages/toolchain-atmelavr/bin/avr-gcc",
+            "compilerArgs": [
+                "-mmcu=atmega328p",
+                ""
+            ]
+        }
+    ],
+    "version": 4
+}
