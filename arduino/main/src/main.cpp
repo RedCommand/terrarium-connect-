@@ -232,7 +232,17 @@ void trappe(int angle = 30)
     // création d'une fonction permettant de gérer la trappe (possibilitée de définir l'angle d'ouverture, sinon l'angle par défault sera 15°)
     // exemple d'utilisation de la fonction : "trappe()" pour ouvrir la trappe à l'angle par default. Ou bien : "trappe(35)" pour ouvrir la trappe à 35°.
     // ATTENTION : la variable "angle" doit être comprise entre 0 et 90
-    ServoTrappe.write(angle);
+    if ((angle >= 0) && (angle <= 90))
+    {
+        ServoTrappe.write(angle);
+        Serial.print("trappe opened at : ");
+        Serial.println(angle);
+    }
+    else
+    {
+        ServoTrappe.write(30);
+        Serial.println("angle must be between 0 and 90°, opening trappe at 30°");
+    }
 }
 
 byte get_temp_zone_froide(float *temperature)
@@ -309,20 +319,28 @@ void set_temp_zone_froide()
             Serial.println("trappe auto mode is on, closing trappe");
             trappe(0); // si la trappe est en mode auto, ferme la trappe
         }
+        else
+        {
+            trappe(angle_trappe);
+        }
     }
 
     else if (current_temp_zone_froide > temp_zone_froide)
     {                           // si la température est chaude
         tapis_chauffant(false); // éteint le tapis chauffant
         Serial.println("temp too high");
-        if (angle_trappe == 91)
+        if (current_temp_zone_froide > (temp_zone_froide + 5))
+        {               // si la température est trop chaude
+            trappe(90); // force l'ouverture de la trappe en grand
+        }
+        else if (angle_trappe == 91)
         { // regarde si la trappe est en mode auto
             Serial.println("trappe auto mode is on, opening trappe");
             trappe(); // si la trappe est en mode auto, ouvre la trappe
         }
-        if (current_temp_zone_froide > (temp_zone_froide + 5))
-        {               // si la température est trop chaude
-            trappe(90); // force l'ouverture de la trappe en grand
+        else
+        {
+            trappe(angle_trappe);
         }
     }
 
@@ -330,14 +348,18 @@ void set_temp_zone_froide()
     { // si la température est froide
         Serial.println("temp too clod");
         tapis_chauffant(true); // alume le tapis chauffant
-        if (angle_trappe == 91)
+        if (current_temp_zone_froide < (temp_zone_froide - 5))
+        {              // si la température est trop chaude
+            trappe(0); // force la fermeture de la trappe
+        }
+        else if (angle_trappe == 91)
         { // regarde si la trappe est en mode auto
             Serial.println("trappe auto mode is on, closing trappe");
             trappe(0); // si la trappe est en mode auto, ferme la trappe
         }
-        if (current_temp_zone_froide < (temp_zone_froide - 5))
-        {              // si la température est trop chaude
-            trappe(0); // force la fermeture de la trappe
+        else
+        {
+            trappe(angle_trappe);
         }
     }
 }
